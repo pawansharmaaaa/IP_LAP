@@ -9,6 +9,8 @@ import face_alignment
 from models import audio
 from draw_landmark import draw_landmarks
 import mediapipe as mp
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--input', '--input_template_video', type=str, default='./test/template_video/129.mp4')
 #'./test/template_video/129.mp4'
@@ -20,7 +22,10 @@ parser.add_argument('--output_dir', type=str, default='./test_result')
 parser.add_argument('--static', type=bool, help='whether only use  the first frame for inference', default=False)
 parser.add_argument('--landmark_gen_checkpoint_path', type=str, default='./test/checkpoints/landmarkgenerator_checkpoint.pth')
 parser.add_argument('--renderer_checkpoint_path', type=str, default='./test/checkpoints/renderer_checkpoint.pth')
+
+
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
 args = parser.parse_args()
 
 ref_img_N = 25
@@ -105,9 +110,7 @@ def summarize_landmark(edge_set):  # summarize all ficial landmarks used to cons
     return landmarks
 
 all_landmarks_idx = summarize_landmark(FACEMESH_CONNECTION)
-pose_landmark_idx = \
-    summarize_landmark(FACEMESH_NOSE.union(*[FACEMESH_RIGHT_EYEBROW, FACEMESH_RIGHT_EYE,
-                                             FACEMESH_LEFT_EYE, FACEMESH_LEFT_EYEBROW, ])).union(
+pose_landmark_idx = summarize_landmark(FACEMESH_NOSE.union(*[FACEMESH_RIGHT_EYEBROW, FACEMESH_RIGHT_EYE,FACEMESH_LEFT_EYE, FACEMESH_LEFT_EYEBROW, ])).union(
         [162, 127, 234, 93, 389, 356, 454, 323])
 # pose landmarks are landmarks of the upper-half face(eyes,nose,cheek) that represents the pose information
 
@@ -189,8 +192,10 @@ class LandmarkDict(dict):# Makes a dictionary that behave like an object to repr
             raise AttributeError(name)
     def __setattr__(self, name, value):
         self[name] = value
+
 print(" landmark_generator_model loaded from : ", landmark_gen_checkpoint_path)
 print(" renderer loaded from : ", renderer_checkpoint_path)
+
 landmark_generator_model = load_model(
     model=Landmark_transformer(T=T, d_model=512, nlayers=4, nhead=4, dim_feedforward=1024, dropout=0.1),
     path=landmark_gen_checkpoint_path)
